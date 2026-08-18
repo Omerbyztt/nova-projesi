@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Login.css';
 
-const Login = ({ onSwitch }) => {
+const Login = ({ onSwitch, onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -87,7 +87,10 @@ const Login = ({ onSwitch }) => {
               <p>Portala erişmek için lütfen bilgilerinizi girin.</p>
             </div>
 
-            <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
+            <form className="auth-form" onSubmit={(e) => {
+              e.preventDefault();
+              if (onLogin) onLogin();
+            }}>
               <div className="form-group">
                 <label htmlFor="email">E-posta</label>
                 <div className="input-wrapper">
