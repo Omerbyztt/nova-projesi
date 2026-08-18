@@ -1,0 +1,13 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: #f4f7f6;
+  color: #333;
+  min-height: 100vh;
+  /* Kötü görünüme sebep olan eski mavi gradyan ve flex ayarları kaldırıldı */
+}
