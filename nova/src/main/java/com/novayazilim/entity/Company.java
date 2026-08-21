@@ -5,25 +5,37 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-/**
- * Şirket bilgilerini tutan Entity sınıfı.
- */
 @Entity
 public class Company {
 
-    // Şirketin benzersiz kimliği (Primary Key)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Şirketin adı
     private String name;
 
-    // Parametresiz yapıcı metot (JPA için gereklidir)
+    private String taxNumber;
+
+    private String address;
+
+    private String email;
+
+    private String phone;
+
+    private String logoUrl;
+
     public Company() {
     }
 
-    // Getter ve Setter metotları
+    public Company(Long id, String name, String taxNumber, String address, String email, String phone) {
+        this.id = id;
+        this.name = name;
+        this.taxNumber = taxNumber;
+        this.address = address;
+        this.email = email;
+        this.phone = phone;
+    }
+
     public Long getId() {
         return id;
     }
@@ -38,5 +50,45 @@ public class Company {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getTaxNumber() {
+        return taxNumber;
+    }
+
+    public void setTaxNumber(String taxNumber) {
+        this.taxNumber = taxNumber;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
     }
 }

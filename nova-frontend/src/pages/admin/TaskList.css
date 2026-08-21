@@ -1,0 +1,44 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-todo {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.status-progress {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.status-done {
+  background-color: #dcfce3;
+  color: #16a34a;
+}
+
+.assignee-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--admin-text-main);
+}
+
+.assignee-icon {
+  background-color: var(--admin-bg-color);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  border: 1px solid var(--admin-border);
+}

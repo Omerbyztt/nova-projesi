@@ -1,8 +1,31 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './Login.css';
 
-const Login = ({ onSwitch, onLogin }) => {
+const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      const response = await axios.post('http://localhost:8080/api/auth/login', {
+        email,
+        password
+      });
+      const token = response.data.token;
+      localStorage.setItem('token', token);
+      // Admin paneline /dashboard rotasına yönlendir
+      navigate('/dashboard');
+    } catch (err) {
+      setError('Giriş başarısız. Lütfen e-posta ve şifrenizi kontrol edin.');
+    }
+  };
 
   return (
     <div className="auth-page-container">
@@ -87,17 +110,18 @@ const Login = ({ onSwitch, onLogin }) => {
               <p>Portala erişmek için lütfen bilgilerinizi girin.</p>
             </div>
 
-            <form className="auth-form" onSubmit={(e) => {
-              e.preventDefault();
-              if (onLogin) onLogin();
-            }}>
+            {error && <div className="auth-error-msg">{error}</div>}
+
+            <form className="auth-form" onSubmit={handleLogin} autoComplete="off">
               <div className="form-group">
-                <label htmlFor="email">E-posta</label>
+                <label htmlFor="email">Kurumsal E-posta</label>
                 <div className="input-wrapper">
                   <span className="input-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                   </span>
-                  <input type="email" id="email" placeholder="e-posta@sirket.com" required />
+                  <input type="email" id="email" placeholder="ornek@sirket.com" required 
+                         value={email} onChange={e => setEmail(e.target.value)} 
+                         autoComplete="off" />
                 </div>
               </div>
 
@@ -112,6 +136,8 @@ const Login = ({ onSwitch, onLogin }) => {
                     id="password" 
                     placeholder="••••••••••••" 
                     required 
+                    value={password} onChange={e => setPassword(e.target.value)}
+                    autoComplete="new-password"
                   />
                   <button 
                     type="button" 
@@ -169,7 +195,7 @@ const Login = ({ onSwitch, onLogin }) => {
             </form>
 
             <p className="auth-footer">
-              Hesabınız yok mu? <button type="button" className="auth-link-btn" onClick={onSwitch}>Kayıt Ol</button>
+              Hesabınız yok mu? <button type="button" className="auth-link-btn" onClick={() => navigate('/signup')}>Kayıt Ol</button>
             </p>
           </div>
         </div>

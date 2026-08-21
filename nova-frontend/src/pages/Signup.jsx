@@ -1,8 +1,66 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './Signup.css';
 
-const Signup = ({ onSwitch }) => {
+const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordStrength, setPasswordStrength] = useState(0); // 0-100
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  const handlePasswordChange = (e) => {
+    const val = e.target.value;
+    setPassword(val);
+    
+    // Calculate strength
+    let strength = 0;
+    if (val.length > 5) strength += 25;
+    if (val.length > 8) strength += 25;
+    if (/[A-Z]/.test(val)) strength += 25;
+    if (/[0-9]/.test(val) || /[^A-Za-z0-9]/.test(val)) strength += 25;
+    
+    setPasswordStrength(strength);
+  };
+
+  const getStrengthColor = () => {
+    if (passwordStrength === 0) return '#e2e8f0';
+    if (passwordStrength <= 25) return '#ef4444'; // Red
+    if (passwordStrength <= 75) return '#f59e0b'; // Yellow
+    return '#10b981'; // Green
+  };
+  
+  const getStrengthLabel = () => {
+    if (passwordStrength === 0) return '';
+    if (passwordStrength <= 25) return 'Zayıf';
+    if (passwordStrength <= 75) return 'Orta';
+    return 'Güçlü';
+  };
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      const response = await axios.post('http://localhost:8080/api/auth/register', {
+        firstName,
+        lastName,
+        email,
+        password,
+        role: "COMPANY_ADMIN",
+        title: "Şirket Yöneticisi",
+        departmentId: 1
+      });
+      const token = response.data.token;
+      localStorage.setItem('token', token);
+      navigate('/company');
+    } catch (err) {
+      setError('Kayıt başarısız. Lütfen bilgilerinizi kontrol edip tekrar deneyin.');
+    }
+  };
 
   return (
     <div className="auth-page-container">
@@ -71,14 +129,31 @@ const Signup = ({ onSwitch }) => {
               <p>Nova Portal'a bugün katılın.</p>
             </div>
 
-            <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
-              <div className="form-group">
-                <label htmlFor="fullName">Ad Soyad</label>
-                <div className="input-wrapper">
-                  <span className="input-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                  </span>
-                  <input type="text" id="fullName" placeholder="Ahmet Yılmaz" required />
+            {error && <div className="auth-error-msg">{error}</div>}
+
+            <form className="auth-form" onSubmit={handleSignup} autoComplete="off">
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="firstName">Ad</label>
+                  <div className="input-wrapper">
+                    <span className="input-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </span>
+                    <input type="text" id="firstName" placeholder="Ömer" required 
+                           value={firstName} onChange={e => setFirstName(e.target.value)}
+                           autoComplete="off" />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="lastName">Soyad</label>
+                  <div className="input-wrapper">
+                    <span className="input-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </span>
+                    <input type="text" id="lastName" placeholder="Faruk" required 
+                           value={lastName} onChange={e => setLastName(e.target.value)}
+                           autoComplete="off" />
+                  </div>
                 </div>
               </div>
 
@@ -88,40 +163,9 @@ const Signup = ({ onSwitch }) => {
                   <span className="input-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                   </span>
-                  <input type="email" id="email" placeholder="e-posta@sirket.com" required />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="department">Departman</label>
-                  <div className="input-wrapper">
-                    <span className="input-icon">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>
-                    </span>
-                    <select id="department" required defaultValue="">
-                      <option value="" disabled>Departman Seç</option>
-                      <option value="yazilim">Yazılım</option>
-                      <option value="ik">İnsan Kaynakları</option>
-                      <option value="pazarlama">Pazarlama</option>
-                      <option value="satis">Satış</option>
-                      <option value="finans">Finans</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="role">Rol</label>
-                  <div className="input-wrapper">
-                    <span className="input-icon">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                    </span>
-                    <select id="role" required defaultValue="">
-                      <option value="" disabled>Rol Seç</option>
-                      <option value="yonetici">Yönetici</option>
-                      <option value="calisan">Çalışan</option>
-                    </select>
-                  </div>
+                  <input type="email" id="email" placeholder="e-posta@sirket.com" required 
+                         value={email} onChange={e => setEmail(e.target.value)}
+                         autoComplete="off" />
                 </div>
               </div>
 
@@ -136,6 +180,8 @@ const Signup = ({ onSwitch }) => {
                     id="password" 
                     placeholder="••••••••••••" 
                     required 
+                    value={password} onChange={handlePasswordChange}
+                    autoComplete="new-password"
                   />
                   <button 
                     type="button" 
@@ -150,13 +196,30 @@ const Signup = ({ onSwitch }) => {
                     )}
                   </button>
                 </div>
+                
+                {password.length > 0 && (
+                  <div style={{ marginTop: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--admin-text-muted)', marginBottom: '4px' }}>
+                      <span>Şifre Gücü</span>
+                      <span style={{ color: getStrengthColor(), fontWeight: 600 }}>{getStrengthLabel()}</span>
+                    </div>
+                    <div style={{ height: '4px', background: '#e2e8f0', borderRadius: '2px', overflow: 'hidden' }}>
+                      <div style={{ 
+                        height: '100%', 
+                        width: `${passwordStrength}%`, 
+                        background: getStrengthColor(),
+                        transition: 'all 0.3s ease'
+                      }}></div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <button type="submit" className="primary-btn signup-btn">Kayıt Ol</button>
             </form>
 
             <p className="auth-footer">
-              Zaten hesabınız var mı? <button type="button" className="auth-link-btn" onClick={onSwitch}>Giriş Yap</button>
+              Zaten hesabınız var mı? <button type="button" className="auth-link-btn" onClick={() => navigate('/login')}>Giriş Yap</button>
             </p>
           </div>
         </div>

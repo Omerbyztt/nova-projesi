@@ -7,31 +7,33 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
-/**
- * Şirket içindeki departmanları tutan Entity sınıfı.
- * Örn: Yönetim, Ar-Ge, İK, İdari İşler
- */
 @Entity
 public class Department {
 
-    // Departmanın benzersiz kimliği (Primary Key)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Departmanın adı
     private String name;
 
-    // Departmanın bağlı olduğu şirket (Çoktan Teke ilişki)
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
 
-    // Parametresiz yapıcı metot (JPA için gereklidir)
+    @ManyToOne
+    @JoinColumn(name = "manager_id")
+    private Employee manager;
+
     public Department() {
     }
 
-    // Getter ve Setter metotları
+    public Department(Long id, String name, Company company, Employee manager) {
+        this.id = id;
+        this.name = name;
+        this.company = company;
+        this.manager = manager;
+    }
+
     public Long getId() {
         return id;
     }
@@ -54,5 +56,13 @@ public class Department {
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+
+    public Employee getManager() {
+        return manager;
+    }
+
+    public void setManager(Employee manager) {
+        this.manager = manager;
     }
 }
