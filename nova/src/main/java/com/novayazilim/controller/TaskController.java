@@ -1,6 +1,8 @@
 package com.novayazilim.controller;
 
-import com.novayazilim.entity.Task;
+import com.novayazilim.dto.TaskCreateRequest;
+import com.novayazilim.dto.TaskDto;
+import com.novayazilim.dto.TaskUpdateStatusRequest;
 import com.novayazilim.service.TaskService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,44 +20,27 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<Task> createTask(@RequestBody Task task) {
+    public ResponseEntity<?> createTask(@RequestBody TaskCreateRequest request) {
         try {
-            return ResponseEntity.ok(taskService.save(task));
+            TaskDto createdTask = taskService.createTask(request);
+            return ResponseEntity.ok(createdTask);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks() {
-        return ResponseEntity.ok(taskService.findAll());
+    public ResponseEntity<List<TaskDto>> getTasks() {
+        return ResponseEntity.ok(taskService.getTasks());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
-        return taskService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/employee/{employeeId}")
-    public ResponseEntity<List<Task>> getTasksByEmployeeId(@PathVariable Long employeeId) {
-        return ResponseEntity.ok(taskService.findByEmployeeId(employeeId));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task taskDetails) {
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> updateTaskStatus(@PathVariable Long id, @RequestBody TaskUpdateStatusRequest request) {
         try {
-            Task updatedTask = taskService.update(id, taskDetails);
+            TaskDto updatedTask = taskService.updateTaskStatus(id, request);
             return ResponseEntity.ok(updatedTask);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-        taskService.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }

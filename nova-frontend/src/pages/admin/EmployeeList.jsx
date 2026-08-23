@@ -82,7 +82,6 @@ const EmployeeList = () => {
     try {
       let actualRole = newEmp.roleOption;
       const isManager = actualRole === 'DEPARTMENT_MANAGER';
-      if (isManager) actualRole = 'EMPLOYEE';
       const empPayload = {
         firstName: newEmp.firstName,
         lastName: newEmp.lastName,
@@ -133,7 +132,8 @@ const EmployeeList = () => {
         toast.success('Çalışan başarıyla silindi.');
         await fetchData();
       } catch (err) {
-        toast.error('Silinirken hata oluştu.');
+        const errorMsg = err.response?.data;
+        toast.error(typeof errorMsg === 'string' ? errorMsg : 'Silinirken hata oluştu.');
       }
     }
     setConfirmModal({ isOpen: false, empId: null });
@@ -285,40 +285,40 @@ const EmployeeList = () => {
 
       {isModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{maxWidth: '500px'}}>
-            <h3>{isEditMode ? 'Çalışanı Düzenle' : 'Yeni Çalışan Ekle'}</h3>
-            <div className="form-grid" style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px'}}>
-              <div className="form-group">
+          <div className="modal-content" style={{maxWidth: '480px', padding: '24px'}}>
+            <h3 style={{marginBottom: '16px', marginTop: 0}}>{isEditMode ? 'Çalışanı Düzenle' : 'Yeni Çalışan Ekle'}</h3>
+            <div className="form-grid" style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px'}}>
+              <div className="form-group premium-input">
                 <label>Ad</label>
                 <input type="text" value={newEmp.firstName} onChange={e => setNewEmp({...newEmp, firstName: e.target.value})} />
               </div>
-              <div className="form-group">
+              <div className="form-group premium-input">
                 <label>Soyad</label>
                 <input type="text" value={newEmp.lastName} onChange={e => setNewEmp({...newEmp, lastName: e.target.value})} />
               </div>
-              <div className="form-group full-width" style={{gridColumn: '1 / -1'}}>
+              <div className="form-group premium-input full-width" style={{gridColumn: '1 / -1'}}>
                 <label>Email</label>
                 <input type="email" value={newEmp.email} onChange={e => setNewEmp({...newEmp, email: e.target.value})} />
               </div>
-              <div className="form-group full-width" style={{gridColumn: '1 / -1'}}>
+              <div className="form-group premium-input full-width" style={{gridColumn: '1 / -1'}}>
                 <label>{isEditMode ? 'Yeni Şifre (Değiştirmek İstemiyorsanız Boş Bırakın)' : 'Geçici Şifre'}</label>
-                <input type="text" value={newEmp.password} onChange={e => setNewEmp({...newEmp, password: e.target.value})} placeholder={isEditMode ? "********" : ""} />
+                <input type="password" value={newEmp.password} onChange={e => setNewEmp({...newEmp, password: e.target.value})} placeholder={isEditMode ? "********" : ""} />
               </div>
-              <div className="form-group">
+              <div className="form-group premium-input">
                 <label>Ünvan</label>
                 <input type="text" value={newEmp.title} onChange={e => setNewEmp({...newEmp, title: e.target.value})} />
               </div>
-              <div className="form-group">
+              <div className="form-group premium-input">
                 <label>Rol</label>
-                <select value={newEmp.roleOption} onChange={e => setNewEmp({...newEmp, roleOption: e.target.value})} style={{padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--admin-border)'}}>
+                <select value={newEmp.roleOption} onChange={e => setNewEmp({...newEmp, roleOption: e.target.value})}>
                   <option value="EMPLOYEE">Standart Çalışan</option>
                   <option value="DEPARTMENT_MANAGER">Departman Yöneticisi</option>
                   <option value="COMPANY_ADMIN">Şirket Yöneticisi</option>
                 </select>
               </div>
-              <div className="form-group full-width premium-input" style={{gridColumn: '1 / -1'}}>
+              <div className="form-group premium-input full-width" style={{gridColumn: '1 / -1'}}>
                 <label>Departman</label>
-                <select value={newEmp.departmentId} onChange={e => setNewEmp({...newEmp, departmentId: e.target.value})} style={{padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--admin-border)'}}>
+                <select value={newEmp.departmentId} onChange={e => setNewEmp({...newEmp, departmentId: e.target.value})}>
                   <option value="">Seçiniz...</option>
                   {departments.map(d => (
                     <option key={d.id} value={d.id}>{d.name}</option>
@@ -326,7 +326,7 @@ const EmployeeList = () => {
                 </select>
               </div>
             </div>
-            <div className="modal-actions" style={{marginTop: '24px'}}>
+            <div className="modal-actions" style={{marginTop: '20px'}}>
               <button className="btn-secondary" onClick={() => setIsModalOpen(false)}>İptal</button>
               <button className="btn-primary" onClick={handleAdd}>Kaydet</button>
             </div>

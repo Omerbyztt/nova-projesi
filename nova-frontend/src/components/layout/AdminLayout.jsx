@@ -1,38 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useToast } from '../ui/ToastProvider';
+import { useAuth } from '../../context/AuthContext';
 import './AdminLayout.css';
 
 const AdminLayout = () => {
   const navigate = useNavigate();
   const toast = useToast();
+  const { currentUser, logout, refreshUser } = useAuth();
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [profileData, setProfileData] = useState({ firstName: '', lastName: '', email: '', password: '' });
+  const [profileData, setProfileData] = useState({ firstName: '', lastName: '', email: '', password: '', title: '' });
 
   useEffect(() => {
-    fetchMe();
-  }, []);
-
-  const fetchMe = async () => {
-    try {
-      const { default: axiosInstance } = await import('../../api/axiosConfig');
-      const res = await axiosInstance.get('/employees/me');
-      setCurrentUser(res.data);
+    if (currentUser) {
       setProfileData({
-        firstName: res.data.firstName || '',
-        lastName: res.data.lastName || '',
-        email: res.data.email || '',
-        title: res.data.title || '',
+        firstName: currentUser.firstName || '',
+        lastName: currentUser.lastName || '',
+        email: currentUser.email || '',
+        title: currentUser.title || '',
         password: ''
       });
-    } catch (err) {
-      console.error('Failed to fetch user profile', err);
     }
-  };
+  }, [currentUser]);
 
   const handleProfileUpdate = async () => {
     if (!currentUser) return;
@@ -55,7 +48,7 @@ const AdminLayout = () => {
       await axiosInstance.put(`/employees/${currentUser.id}`, payload);
       toast.success('Profil başarıyla güncellendi!');
       setShowProfileModal(false);
-      fetchMe();
+      refreshUser();
     } catch (err) {
       toast.error('Profil güncellenirken bir hata oluştu.');
       console.error(err);
@@ -86,17 +79,28 @@ const AdminLayout = () => {
     }
   }, []);
 
-  const modules = [
-    { name: 'Şirket Bilgileri', path: '/company' },
-    { name: 'Departman Yönetimi', path: '/departments' },
-    { name: 'Çalışanlar', path: '/employees' },
-    { name: 'Görevler', path: '/tasks' }
+  const isAdmin = currentUser?.role === 'COMPANY_ADMIN' || currentUser?.role === 'SUPER_ADMIN';
+
+  const adminModules = [
+    { name: 'Özet Paneli', path: '/dashboard', icon: <><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></> },
+    { name: 'Şirket Bilgileri', path: '/company', icon: <><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></> },
+    { name: 'Departman Yönetimi', path: '/departments', icon: <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path> },
+    { name: 'Çalışanlar', path: '/employees', icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></> },
+    { name: 'Görevler', path: '/tasks-board', icon: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></> }
   ];
+
+  const employeeModules = [
+    { name: 'Ana Sayfa', path: '/home', icon: <><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></> },
+    { name: 'Görev Panosu', path: '/tasks-board', icon: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></> },
+    { name: 'Takvim', path: '/calendar', icon: <><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></> }
+  ];
+
+  const modules = isAdmin ? adminModules : employeeModules;
 
   const filteredModules = modules.filter(m => m.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    logout();
     navigate('/login');
   };
 
@@ -104,66 +108,32 @@ const AdminLayout = () => {
     <div className="admin-container">
       {/* Sidebar */}
       <aside className="admin-sidebar">
-        <div className="sidebar-brand" onClick={() => navigate('/dashboard')} style={{cursor: 'pointer'}}>
+        <div className="sidebar-brand" onClick={() => navigate(isAdmin ? '/dashboard' : '/home')} style={{cursor: 'pointer'}}>
           <div className="brand-logo">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
             </svg>
           </div>
-          <span className="brand-text">Nova Portal</span>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span className="brand-text">Nova Portal</span>
+            <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginTop: '2px', fontWeight: 500 }}>
+              {currentUser?.department?.company?.name || 'Workspace'}
+            </span>
+          </div>
         </div>
 
         <nav className="sidebar-nav">
           <ul>
-            <li>
-              <NavLink to="/company" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
-                  <path d="M9 22v-4h6v4"></path>
-                  <path d="M8 6h.01"></path>
-                  <path d="M16 6h.01"></path>
-                  <path d="M12 6h.01"></path>
-                  <path d="M12 10h.01"></path>
-                  <path d="M12 14h.01"></path>
-                  <path d="M16 10h.01"></path>
-                  <path d="M16 14h.01"></path>
-                  <path d="M8 10h.01"></path>
-                  <path d="M8 14h.01"></path>
-                </svg>
-                <span className="nav-text">Şirket Bilgileri</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/departments" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                </svg>
-                <span className="nav-text">Departman Yönetimi</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/employees" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="9" cy="7" r="4"></circle>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-                <span className="nav-text">Çalışanlar</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/tasks" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                  <line x1="16" y1="13" x2="8" y2="13"></line>
-                  <line x1="16" y1="17" x2="8" y2="17"></line>
-                  <polyline points="10 9 9 9 8 9"></polyline>
-                </svg>
-                <span className="nav-text">Görevler</span>
-              </NavLink>
-            </li>
+            {modules.map((m, index) => (
+              <li key={index}>
+                <NavLink to={m.path} className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+                  <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    {m.icon}
+                  </svg>
+                  <span className="nav-text">{m.name}</span>
+                </NavLink>
+              </li>
+            ))}
           </ul>
         </nav>
 

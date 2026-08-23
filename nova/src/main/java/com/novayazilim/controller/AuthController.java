@@ -23,7 +23,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthRequest request) {
-        return ResponseEntity.ok(authService.authenticate(request));
+    public ResponseEntity<?> authenticate(@RequestBody AuthRequest request) {
+        try {
+            return ResponseEntity.ok(authService.authenticate(request));
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
+                    .body(java.util.Map.of("message", "E-posta veya şifre hatalı!"));
+        } catch (Exception e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(java.util.Map.of("message", "Giriş işlemi sırasında bir hata oluştu: " + e.getMessage()));
+        }
     }
 }

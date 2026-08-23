@@ -21,9 +21,10 @@ public class DepartmentController {
     }
 
     @PostMapping
-    public ResponseEntity<Department> createDepartment(@RequestBody Department department) {
+    public ResponseEntity<DepartmentDto> createDepartment(@RequestBody Department department) {
         try {
-            return ResponseEntity.ok(departmentService.save(department));
+            Department saved = departmentService.save(department);
+            return ResponseEntity.ok(DtoMapper.toDepartmentDto(saved));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -61,18 +62,25 @@ public class DepartmentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Department> updateDepartment(@PathVariable Long id, @RequestBody Department departmentDetails) {
+    public ResponseEntity<?> updateDepartment(@PathVariable Long id, @RequestBody Department departmentDetails) {
         try {
             Department updatedDepartment = departmentService.update(id, departmentDetails);
-            return ResponseEntity.ok(updatedDepartment);
+            return ResponseEntity.ok(DtoMapper.toDepartmentDto(updatedDepartment));
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Hata oluştu: " + e.getMessage());
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDepartment(@PathVariable Long id) {
-        departmentService.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteDepartment(@PathVariable Long id) {
+        try {
+            departmentService.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body("Bu departmana bağlı çalışanlar veya görevler olduğu için silinemez. Lütfen önce onları temizleyin.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Departman silinirken bir hata oluştu.");
+        }
     }
 }

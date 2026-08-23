@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
 const Login = () => {
@@ -8,6 +9,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -19,9 +21,8 @@ const Login = () => {
         password
       });
       const token = response.data.token;
-      localStorage.setItem('token', token);
-      // Admin paneline /dashboard rotasına yönlendir
-      navigate('/dashboard');
+      login(token); // Update AuthContext
+      navigate('/dashboard'); // ProtectedRoute will redirect if not admin
     } catch (err) {
       setError('Giriş başarısız. Lütfen e-posta ve şifrenizi kontrol edin.');
     }

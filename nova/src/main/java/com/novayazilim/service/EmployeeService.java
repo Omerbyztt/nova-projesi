@@ -33,6 +33,13 @@ public class EmployeeService {
                 
         employee.setDepartment(department);
         
+        if (employee.getPassword() != null && !employee.getPassword().trim().isEmpty()) {
+            employee.setPassword(passwordEncoder.encode(employee.getPassword()));
+        } else {
+            // Default password if not provided
+            employee.setPassword(passwordEncoder.encode("123456"));
+        }
+        
         return employeeRepository.save(employee);
     }
 

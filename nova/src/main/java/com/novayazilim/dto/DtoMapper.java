@@ -3,6 +3,8 @@ package com.novayazilim.dto;
 import com.novayazilim.entity.Company;
 import com.novayazilim.entity.Department;
 import com.novayazilim.entity.Employee;
+import com.novayazilim.entity.Task;
+import com.novayazilim.entity.TaskStatus;
 
 public class DtoMapper {
 
@@ -36,6 +38,20 @@ public class DtoMapper {
         dto.setTitle(employee.getTitle());
         dto.setRole(employee.getRole());
         dto.setDepartment(toDepartmentDto(employee.getDepartment()));
+        return dto;
+    }
+
+    public static TaskDto toTaskDto(Task task) {
+        if (task == null) return null;
+        TaskDto dto = new TaskDto();
+        dto.setId(task.getId());
+        dto.setTitle(task.getTitle());
+        dto.setDescription(task.getDescription());
+        dto.setStatus(task.getStatus());
+        dto.setDueDate(task.getDueDate());
+        dto.setAssignedTo(toEmployeeDto(task.getAssignedTo()));
+        dto.setAssignedBy(toEmployeeDto(task.getAssignedBy()));
+        dto.setDepartment(toDepartmentDto(task.getDepartment()));
         return dto;
     }
 }

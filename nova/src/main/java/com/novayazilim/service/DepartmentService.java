@@ -59,11 +59,33 @@ public class DepartmentService {
                         existingDepartment.setCompany(company);
                     }
                     
+                    Employee oldManager = existingDepartment.getManager();
+
                     if (departmentDetails.getManager() != null && departmentDetails.getManager().getId() != null) {
-                        Employee manager = employeeRepository.findById(departmentDetails.getManager().getId())
+                        Employee newManager = employeeRepository.findById(departmentDetails.getManager().getId())
                                 .orElseThrow(() -> new RuntimeException("Yönetici ID bulunamadı: " + departmentDetails.getManager().getId()));
-                        existingDepartment.setManager(manager);
+                        
+                        // If manager is changing, downgrade the old one
+                        if (oldManager != null && !oldManager.getId().equals(newManager.getId())) {
+                            if (oldManager.getRole() == com.novayazilim.entity.Role.DEPARTMENT_MANAGER) {
+                                oldManager.setRole(com.novayazilim.entity.Role.EMPLOYEE);
+                                employeeRepository.save(oldManager);
+                            }
+                        }
+                        
+                        // Upgrade the new one
+                        if (newManager.getRole() == com.novayazilim.entity.Role.EMPLOYEE) {
+                            newManager.setRole(com.novayazilim.entity.Role.DEPARTMENT_MANAGER);
+                            employeeRepository.save(newManager);
+                        }
+                        
+                        existingDepartment.setManager(newManager);
                     } else {
+                        // Manager is removed, downgrade the old one
+                        if (oldManager != null && oldManager.getRole() == com.novayazilim.entity.Role.DEPARTMENT_MANAGER) {
+                            oldManager.setRole(com.novayazilim.entity.Role.EMPLOYEE);
+                            employeeRepository.save(oldManager);
+                        }
                         existingDepartment.setManager(null);
                     }
                     

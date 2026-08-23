@@ -21,9 +21,10 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
+    public ResponseEntity<EmployeeDto> createEmployee(@RequestBody Employee employee) {
         try {
-            return ResponseEntity.ok(employeeService.save(employee));
+            Employee saved = employeeService.save(employee);
+            return ResponseEntity.ok(DtoMapper.toEmployeeDto(saved));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -82,18 +83,24 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employeeDetails) {
+    public ResponseEntity<EmployeeDto> updateEmployee(@PathVariable Long id, @RequestBody Employee employeeDetails) {
         try {
             Employee updatedEmployee = employeeService.update(id, employeeDetails);
-            return ResponseEntity.ok(updatedEmployee);
+            return ResponseEntity.ok(DtoMapper.toEmployeeDto(updatedEmployee));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
-        employeeService.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteEmployee(@PathVariable Long id) {
+        try {
+            employeeService.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body("Bu çalışan bir departmanın yöneticisi veya görevlere atanmış olduğu için silinemez. Lütfen önce bağlarını koparın.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Çalışan silinirken bir hata oluştu.");
+        }
     }
 }

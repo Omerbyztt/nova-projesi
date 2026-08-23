@@ -11,6 +11,7 @@ import './EmployeeList.css';
 const DepartmentList = () => {
   const toast = useToast();
   const [departments, setDepartments] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [companyId, setCompanyId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -43,8 +44,12 @@ const DepartmentList = () => {
 
       if (cId) {
         setCompanyId(cId);
-        const deptRes = await axiosInstance.get(`/departments/company/${cId}`);
+        const [deptRes, empRes] = await Promise.all([
+          axiosInstance.get(`/departments/company/${cId}`),
+          axiosInstance.get(`/employees/company/${cId}`)
+        ]);
         setDepartments(deptRes.data || []);
+        setEmployees(empRes.data || []);
       } else {
         toast.error('Şirket bilgisi bulunamadı. Lütfen önce bir şirket oluşturun.');
       }
@@ -61,7 +66,8 @@ const DepartmentList = () => {
       try {
         const payload = {
           name: newDept.name,
-          company: { id: companyId }
+          company: { id: companyId },
+          manager: newDept.manager ? { id: newDept.manager } : null
         };
         
         if (isEditMode && currentDeptId) {
@@ -92,7 +98,8 @@ const DepartmentList = () => {
         toast.success('Departman başarıyla silindi.');
         fetchDepartments();
       } catch (err) {
-        toast.error('Silinirken hata oluştu.');
+        const errorMsg = err.response?.data;
+        toast.error(typeof errorMsg === 'string' ? errorMsg : 'Silinirken hata oluştu.');
       }
     }
     setConfirmModal({ isOpen: false, deptId: null });
@@ -227,6 +234,19 @@ const DepartmentList = () => {
                 value={newDept.name} 
                 onChange={(e) => setNewDept({...newDept, name: e.target.value})}
               />
+            </div>
+            <div className="form-group premium-input" style={{marginTop: '16px'}}>
+              <label>Departman Yöneticisi</label>
+              <select 
+                value={newDept.manager} 
+                onChange={(e) => setNewDept({...newDept, manager: e.target.value})}
+                style={{width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--admin-border)'}}
+              >
+                <option value="">Yönetici Yok (veya Temizle)</option>
+                {employees.map(emp => (
+                  <option key={emp.id} value={emp.id}>{emp.firstName} {emp.lastName} ({emp.email})</option>
+                ))}
+              </select>
             </div>
             <div className="modal-actions">
               <button className="btn-secondary" onClick={() => setIsModalOpen(false)}>İptal</button>

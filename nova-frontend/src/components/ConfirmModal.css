@@ -4,17 +4,19 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(15, 23, 42, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   animation: fadeIn 0.2s ease-out;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
 .confirm-modal-content {
-  background: white;
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-border);
   width: 90%;
   max-width: 420px;
   border-radius: 12px;
@@ -36,7 +38,7 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  background-color: #fef2f2;
+  background-color: rgba(239, 68, 68, 0.1);
   color: #ef4444;
   border-radius: 50%;
 }
