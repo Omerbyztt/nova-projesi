@@ -8,6 +8,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState(null);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -18,11 +19,17 @@ const Login = () => {
     try {
       const response = await axios.post('http://localhost:8080/api/auth/login', {
         email,
-        password
+        password,
+        rememberMe
       });
       const token = response.data.token;
-      login(token); // Update AuthContext
-      navigate('/dashboard'); // ProtectedRoute will redirect if not admin
+      const user = await login(token); // Update AuthContext and wait for state to refresh
+      
+      if (user?.firstLogin) {
+          navigate('/change-password');
+      } else {
+          navigate('/dashboard'); // ProtectedRoute will redirect if not admin
+      }
     } catch (err) {
       setError('Giriş başarısız. Lütfen e-posta ve şifrenizi kontrol edin.');
     }
@@ -157,11 +164,15 @@ const Login = () => {
 
               <div className="form-options">
                 <label className="remember-me">
-                  <input type="checkbox" />
+                  <input 
+                    type="checkbox" 
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
                   <span className="checkmark"></span>
                   Beni hatırla
                 </label>
-                <a href="#" onClick={(e) => e.preventDefault()} className="forgot-password">Şifremi unuttum?</a>
+                <button type="button" onClick={() => navigate('/forgot-password')} className="auth-link-btn" style={{fontWeight: 600}}>Şifremi unuttum?</button>
               </div>
 
               <button type="submit" className="primary-btn">Giriş Yap</button>

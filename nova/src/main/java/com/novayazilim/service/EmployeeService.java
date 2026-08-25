@@ -23,6 +23,32 @@ public class EmployeeService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public Employee createFromRequest(com.novayazilim.dto.EmployeeCreateRequest request) {
+        if (request.getDepartment() == null || request.getDepartment().getId() == null) {
+            throw new RuntimeException("Çalışan kaydedilirken geçerli bir Department ID belirtilmelidir.");
+        }
+        
+        Department department = departmentRepository.findById(request.getDepartment().getId())
+                .orElseThrow(() -> new RuntimeException("Belirtilen Department ID bulunamadı: " + request.getDepartment().getId()));
+                
+        Employee employee = new Employee();
+        employee.setFirstName(request.getFirstName());
+        employee.setLastName(request.getLastName());
+        employee.setEmail(request.getEmail());
+        employee.setTitle(request.getTitle());
+        employee.setRole(request.getRole());
+        employee.setDepartment(department);
+        
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+            employee.setPassword(passwordEncoder.encode(request.getPassword()));
+        } else {
+            // Default password if not provided
+            employee.setPassword(passwordEncoder.encode("123456"));
+        }
+        
+        return employeeRepository.save(employee);
+    }
+
     public Employee save(Employee employee) {
         if (employee.getDepartment() == null || employee.getDepartment().getId() == null) {
             throw new RuntimeException("Çalışan kaydedilirken geçerli bir Department ID belirtilmelidir.");

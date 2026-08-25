@@ -21,9 +21,9 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<EmployeeDto> createEmployee(@RequestBody Employee employee) {
+    public ResponseEntity<EmployeeDto> createEmployee(@RequestBody com.novayazilim.dto.EmployeeCreateRequest request) {
         try {
-            Employee saved = employeeService.save(employee);
+            Employee saved = employeeService.createFromRequest(request);
             return ResponseEntity.ok(DtoMapper.toEmployeeDto(saved));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();

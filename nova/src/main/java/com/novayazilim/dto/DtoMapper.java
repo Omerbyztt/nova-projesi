@@ -10,7 +10,7 @@ public class DtoMapper {
 
     public static CompanyDto toCompanyDto(Company company) {
         if (company == null) return null;
-        return new CompanyDto(company.getId(), company.getName());
+        return new CompanyDto(company.getId(), company.getName(), company.getLogoUrl());
     }
 
     public static EmployeeBasicDto toEmployeeBasicDto(Employee employee) {
@@ -38,6 +38,7 @@ public class DtoMapper {
         dto.setTitle(employee.getTitle());
         dto.setRole(employee.getRole());
         dto.setDepartment(toDepartmentDto(employee.getDepartment()));
+        dto.setFirstLogin(employee.isFirstLogin());
         return dto;
     }
 
@@ -52,6 +53,17 @@ public class DtoMapper {
         dto.setAssignedTo(toEmployeeDto(task.getAssignedTo()));
         dto.setAssignedBy(toEmployeeDto(task.getAssignedBy()));
         dto.setDepartment(toDepartmentDto(task.getDepartment()));
+        return dto;
+    }
+
+    public static CalendarEventDto toCalendarEventDto(com.novayazilim.entity.CalendarEvent event) {
+        if (event == null) return null;
+        CalendarEventDto dto = new CalendarEventDto();
+        dto.setId(event.getId());
+        dto.setTitle(event.getTitle());
+        dto.setDescription(event.getDescription());
+        dto.setStartDate(event.getStartDate());
+        dto.setEndDate(event.getEndDate());
         return dto;
     }
 }

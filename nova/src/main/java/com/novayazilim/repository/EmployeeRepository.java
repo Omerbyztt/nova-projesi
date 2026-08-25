@@ -12,4 +12,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Optional<Employee> findFirstByEmail(String email);
     List<Employee> findByDepartmentId(Long departmentId);
     List<Employee> findByDepartmentCompanyId(Long companyId);
+    List<Employee> findTop5ByOrderByIdDesc();
 }

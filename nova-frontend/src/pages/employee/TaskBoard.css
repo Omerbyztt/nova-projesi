@@ -296,3 +296,145 @@ textarea.form-input {
   background: rgba(16, 185, 129, 0.1);
   color: #059669;
 }
+
+/* Drag and Drop Specific Styles */
+.kanban-column-wrapper {
+  flex: 1;
+  min-width: 320px;
+  background: var(--admin-card-bg);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--admin-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.kanban-column-content {
+  flex: 1;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: background-color 0.2s ease;
+  border-radius: 8px;
+  padding: 8px 0;
+}
+
+.kanban-column-content.dragging-over {
+  background-color: rgba(99, 102, 241, 0.05);
+}
+
+.task-card.is-dragging {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  transform: rotate(2deg) scale(1.02);
+  z-index: 100;
+}
+
+.task-card.not-draggable {
+  cursor: default;
+}
+.task-card:not(.not-draggable) {
+  cursor: grab;
+}
+.task-card:not(.not-draggable):active {
+  cursor: grabbing;
+}
+
+.task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* Dropdown Menu */
+.task-menu-container {
+  position: relative;
+}
+
+.dropdown-trigger {
+  background: transparent;
+  border: none;
+  color: var(--admin-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.dropdown-trigger:hover {
+  background-color: var(--admin-bg-color);
+  color: var(--admin-text-main);
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  min-width: 150px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 4px 0;
+}
+
+.dropdown-menu button {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--admin-text-main);
+  transition: background-color 0.2s;
+}
+
+.dropdown-menu button:hover {
+  background-color: var(--admin-bg-color);
+}
+
+.dropdown-menu button.text-danger {
+  color: #ef4444;
+}
+
+/* Dynamic Colors */
+.task-card.color-blue { border-left: 4px solid #3b82f6; }
+.bg-blue { background-color: #3b82f6; }
+
+.task-card.color-emerald { border-left: 4px solid #10b981; }
+.bg-emerald { background-color: #10b981; }
+
+.task-card.color-amber { border-left: 4px solid #f59e0b; }
+.bg-amber { background-color: #f59e0b; }
+
+.task-card.color-purple { border-left: 4px solid #8b5cf6; }
+.bg-purple { background-color: #8b5cf6; }
+
+.task-card.color-rose { border-left: 4px solid #f43f5e; }
+.bg-rose { background-color: #f43f5e; }
+
+.task-card.color-indigo { border-left: 4px solid #6366f1; }
+.bg-indigo { background-color: #6366f1; }
+
+.task-card.color-gray { border-left: 4px solid #9ca3af; }
+.bg-gray { background-color: #9ca3af; }
+
+.task-due-date {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--admin-text-muted);
+  background: var(--admin-bg-color);
+  padding: 4px 8px;
+  border-radius: 12px;
+}

@@ -24,6 +24,9 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
     
+    @Enumerated(EnumType.STRING)
+    private TaskPriority priority;
+    
     private LocalDate dueDate;
 
     @ManyToOne
@@ -63,4 +66,7 @@ public class Task {
 
     public Department getDepartment() { return department; }
     public void setDepartment(Department department) { this.department = department; }
+
+    public TaskPriority getPriority() { return priority; }
+    public void setPriority(TaskPriority priority) { this.priority = priority; }
 }

@@ -10,10 +10,11 @@ public class EmployeeDto {
     private String title;
     private Role role;
     private DepartmentDto department;
+    private boolean isFirstLogin;
 
     public EmployeeDto() {}
 
-    public EmployeeDto(Long id, String firstName, String lastName, String email, String title, Role role, DepartmentDto department) {
+    public EmployeeDto(Long id, String firstName, String lastName, String email, String title, Role role, DepartmentDto department, boolean isFirstLogin) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -21,6 +22,7 @@ public class EmployeeDto {
         this.title = title;
         this.role = role;
         this.department = department;
+        this.isFirstLogin = isFirstLogin;
     }
 
     public Long getId() { return id; }
@@ -37,4 +39,6 @@ public class EmployeeDto {
     public void setRole(Role role) { this.role = role; }
     public DepartmentDto getDepartment() { return department; }
     public void setDepartment(DepartmentDto department) { this.department = department; }
+    public boolean isFirstLogin() { return isFirstLogin; }
+    public void setFirstLogin(boolean firstLogin) { isFirstLogin = firstLogin; }
 }

@@ -16,6 +16,9 @@ import Calendar from './pages/employee/Calendar';
 
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import ChangePassword from './pages/ChangePassword';
 import './App.css';
 
 function App() {
@@ -27,6 +30,11 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route element={<ProtectedRoute allowedRoles={['COMPANY_ADMIN', 'SUPER_ADMIN', 'DEPARTMENT_MANAGER', 'EMPLOYEE']} />}>
+            <Route path="/change-password" element={<ChangePassword />} />
+          </Route>
           
           {/* Shared Layout wrapping all protected pages */}
           <Route element={<AdminLayout />}>

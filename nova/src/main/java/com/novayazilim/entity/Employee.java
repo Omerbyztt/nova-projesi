@@ -41,6 +41,8 @@ public class Employee implements UserDetails {
     @JoinColumn(name = "department_id")
     private Department department;
 
+    private boolean isFirstLogin = true;
+
     public Employee() {
     }
 
@@ -76,6 +78,9 @@ public class Employee implements UserDetails {
     public void setPassword(String password) { this.password = password; }
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+
+    public boolean isFirstLogin() { return isFirstLogin; }
+    public void setFirstLogin(boolean firstLogin) { isFirstLogin = firstLogin; }
 
     // UserDetails Methods
     @Override

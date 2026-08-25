@@ -14,16 +14,18 @@ export const AuthProvider = ({ children }) => {
     if (!token) {
       setCurrentUser(null);
       setIsLoading(false);
-      return;
+      return null;
     }
     
     try {
       const res = await axiosInstance.get('/employees/me');
       setCurrentUser(res.data);
+      return res.data;
     } catch (err) {
       console.error('Failed to fetch user profile', err);
       setCurrentUser(null);
       localStorage.removeItem('token');
+      return null;
     } finally {
       setIsLoading(false);
     }
@@ -33,9 +35,9 @@ export const AuthProvider = ({ children }) => {
     fetchMe();
   }, []);
 
-  const login = (token) => {
+  const login = async (token) => {
     localStorage.setItem('token', token);
-    fetchMe();
+    return await fetchMe();
   };
 
   const logout = () => {

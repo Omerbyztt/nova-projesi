@@ -100,4 +100,49 @@ public class TaskService {
         Task savedTask = taskRepository.save(task);
         return DtoMapper.toTaskDto(savedTask);
     }
+
+    public TaskDto updateTask(Long taskId, com.novayazilim.dto.TaskUpdateRequest request) {
+        Employee currentUser = getCurrentUser();
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Görev bulunamadı."));
+
+        if (currentUser.getRole() == Role.EMPLOYEE && !task.getAssignedTo().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Yetkisiz işlem: Sadece size atanan görevleri güncelleyebilirsiniz.");
+        }
+
+        if (currentUser.getRole() == Role.DEPARTMENT_MANAGER && !task.getDepartment().getId().equals(currentUser.getDepartment().getId())) {
+            throw new RuntimeException("Yetkisiz işlem: Sadece kendi departmanınızdaki görevleri güncelleyebilirsiniz.");
+        }
+
+        if (currentUser.getRole() == Role.COMPANY_ADMIN) {
+            throw new RuntimeException("Yetkisiz işlem: Şirket Yöneticileri görev içeriklerini güncelleyemez.");
+        }
+
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+        task.setDueDate(request.getDueDate());
+        
+        Task savedTask = taskRepository.save(task);
+        return DtoMapper.toTaskDto(savedTask);
+    }
+
+    public void deleteTask(Long taskId) {
+        Employee currentUser = getCurrentUser();
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Görev bulunamadı."));
+
+        if (currentUser.getRole() == Role.EMPLOYEE) {
+            throw new RuntimeException("Yetkisiz işlem: Çalışanlar görevleri silemez. Sadece iptal edebilirsiniz.");
+        }
+
+        if (currentUser.getRole() == Role.DEPARTMENT_MANAGER && !task.getDepartment().getId().equals(currentUser.getDepartment().getId())) {
+            throw new RuntimeException("Yetkisiz işlem: Sadece kendi departmanınızdaki görevleri silebilirsiniz.");
+        }
+
+        if (currentUser.getRole() == Role.COMPANY_ADMIN) {
+            throw new RuntimeException("Yetkisiz işlem: Şirket Yöneticileri görevleri silemez.");
+        }
+
+        taskRepository.delete(task);
+    }
 }
